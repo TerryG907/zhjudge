@@ -1,0 +1,48 @@
+# CPU smoke test of the whole pipeline in minutes: jhu-clsp/mmBERT-small, ~200 examples, 20 steps.
+#   nice -n 15 bash scripts/smoke.sh
+# The numbers it produces are meaningless; the export is marked "SMOKE TEST — NOT FOR RELEASE".
+run:
+  name: smoke
+  seed: 13
+  smoke: true
+model:
+  base: jhu-clsp/mmBERT-small
+  revision: abc32620dd4f6ab06f5fbe905dc25f310618e09f
+  max_len: 256
+  head_max_len: 128
+  model_name: zhjudge-smoke
+data:
+  sources: [cold_zh, massive_zh, oasst2_zh]   # choice + noul + score; all ALLOW-class and enabled
+  decontaminate: selected   # only among these sources (no CLUE / typed-decisions / other-source downloads)
+  probes: false
+  allow_disabled: true      # smoke only: keeps working even if these sources are disabled in datasets.yaml later
+train:
+  device: cpu
+  precision: fp32
+  cpu_threads: 4
+  epochs: 1
+  max_steps: 20
+  batch_size: 8
+  max_tokens: 2048
+  max_train_records: 200
+  format_aug: 0.5           # exercise the Laya-style renderings and option shuffling
+  option_shuffle: 0.5
+  calib_frac: 0.2
+  calib_min: 40
+  calib_cap: 40
+  dev_max_records: 48
+  eval_every: 10
+  save_every: 10
+  log_every: 5
+calibrate:
+  min_bucket: 1000          # too few rows for per-bucket temperatures; per-type only
+  batch_size: 16
+eval:
+  max_per_source: 40
+  probes: false
+  baseline: false
+  batch_size: 16
+export:
+  name: zhjudge-smoke
+compat:
+  n: 16

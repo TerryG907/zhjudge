@@ -1,0 +1,50 @@
+# built data (downloaded / generated at runtime, never committed)
+data/unified/
+data/raw/
+data/probes/
+data/cache/
+data/mt_cache/
+
+# training runs, checkpoints, exports
+runs/
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.mlpackage/
+*.onnx
+*.gguf
+/outputs/
+/publish/
+*.tar.gz
+*.tgz
+*.zip
+*.parquet
+*.arrow
+
+# Python / uv
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Hugging Face / tool caches (if HF_HOME is pointed inside the repo)
+.cache/
+hf_cache/
+huggingface/
+
+# secrets (tokens are read from the environment only)
+.env
+.env.*
+*.token
+kaggle.json
+.netrc
+*.pem
+*.key
+
+# OS
+.DS_Store

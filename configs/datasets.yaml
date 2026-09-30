@@ -1,0 +1,935 @@
+# Training-data allowlist for zhjudge.
+#
+# 中文：这里列出了 phase-0 调研（census）看过的每一个数据集。只有 `enabled: true` 且有 `converter` 的条目会被
+#       `zhjudge build` 下载、转换并用于训练（eval_only 的只用于评估）。`enabled` 已按许可审计 configs/licenses.yaml
+#       （2026-09-29，人读版 DATA_LICENSES.md）设置：只有 class 为 ALLOW 或 CONDITIONAL 且有 converter 的条目为 true，
+#       共 24 个；nli26_zh_*（中文译本没有许可）等 EXCLUDE 条目为 false。每个条目的 `license:` 指向审计条目，
+#       build 和 validate 会复核：审计不允许的来源即使被打开也会被拒绝。
+#       许可方案（`data.license_profile`）：default = ALLOW + CONDITIONAL（权重按 CC BY-SA 4.0 发布）；
+#       permissive_strict = 另外去掉相同方式共享（share-alike）的训练来源（权重可用 Apache-2.0）。
+# English: every dataset the phase-0 census looked at. Only entries with `enabled: true` AND a `converter` are built
+#       (and trained on, unless eval_only). `enabled` follows the licence audit in configs/licenses.yaml (2026-09-29,
+#       human-readable: DATA_LICENSES.md): true only for the 24 converter entries of class ALLOW or CONDITIONAL; the
+#       EXCLUDE ones (e.g. nli26_zh_*, whose Chinese translation carries no licence) stay false. `license:` names the
+#       audit entry; build and validate re-check it and refuse a source the audit does not allow even if enabled.
+#       Release profiles (`data.license_profile`): default = ALLOW + CONDITIONAL (weights CC BY-SA 4.0);
+#       permissive_strict = additionally leaves out share-alike training sources (weights may be Apache-2.0).
+#
+# Fields
+#   enabled         true | false   the licence decision (the trailing comment shows the audit class)
+#   license         key of this dataset in configs/licenses.yaml
+#   converter       name in zhjudge.data.build.SOURCES, or null (no converter; enabling it would have no effect)
+#   role            train | eval_only (never trained on, only its test split is scored) | none (not converted)
+#   census_verdict  the spike census' licence verdict: OK / OK-INHERIT / NC / RESEARCH / UNCLEAR (superseded by
+#                   the audit class; kept for history)
+#   census_status   what the spike did with it
+#
+# Not governed by this file: (1) decontamination downloads (CLUE dev/test, LocalLLaMA/typed-decisions and, in `full`
+# mode, every converter below) are read only to REMOVE overlapping text and are never written or trained on;
+# (2) the baseline probe sets (`zhjudge probes`) are evaluation-only. Never add outputs of Jev or any other
+# proprietary decision API here.
+version: 1
+datasets:
+  tnews_clue_zh:
+    enabled: false  # audit: EXCLUDE; no converter; probe_only
+    license: clue_tnews
+    converter: null
+    role: none
+    lang: zh
+    name: "TNEWS (CLUE)"
+    hf_id: "clue/clue"
+    hf_config: "tnews"
+    upstream: "github.com/CLUEbenchmark/CLUE"
+    census_verdict: "UNCLEAR"
+    census_status: "excluded (licence); validation used by baselines probe as eval"
+  iflytek_clue_zh:
+    enabled: false  # audit: EXCLUDE; no converter; probe_only
+    license: clue_iflytek
+    converter: null
+    role: none
+    lang: zh
+    name: "IFLYTEK (CLUE)"
+    hf_id: "clue/clue"
+    hf_config: "iflytek"
+    upstream: "github.com/CLUEbenchmark/CLUE"
+    census_verdict: "UNCLEAR"
+    census_status: "excluded (licence); validation used by baselines probe"
+  afqmc_clue_zh:
+    enabled: false  # audit: EXCLUDE; no converter; probe_only
+    license: clue_afqmc
+    converter: null
+    role: none
+    lang: zh
+    name: "AFQMC (CLUE)"
+    hf_id: "clue/clue"
+    hf_config: "afqmc"
+    upstream: "Ant Financial ATEC 2018 contest via CLUE"
+    census_verdict: "UNCLEAR"
+    census_status: "excluded (licence); validation used by baselines probe"
+  ocnli_zh:
+    enabled: false  # audit: EXCLUDE; no converter; probe_only
+    license: clue_ocnli
+    converter: null
+    role: none
+    lang: zh
+    name: "OCNLI"
+    hf_id: "clue/clue"
+    hf_config: "ocnli"
+    upstream: "github.com/CLUEbenchmark/OCNLI"
+    census_verdict: "NC"
+    census_status: "excluded (NC); validation used by baselines probe"
+  cmnli_clue_zh:
+    enabled: false  # audit: EXCLUDE; no converter; decontam_only
+    license: clue_cmnli
+    converter: null
+    role: none
+    lang: zh
+    name: "CMNLI (CLUE)"
+    hf_id: "clue/clue"
+    hf_config: "cmnli"
+    upstream: "CLUE machine translation of MNLI + XNLI"
+    census_verdict: "NC"
+    census_status: "excluded (NC/unclear); CLUE dev+test used for decontamination"
+  csl_keyword_task_clue_zh:
+    enabled: false  # audit: EXCLUDE; no converter; decontam_only
+    license: clue_csl
+    converter: null
+    role: none
+    lang: zh
+    name: "CSL keyword task (CLUE)"
+    hf_id: "clue/clue"
+    hf_config: "csl"
+    upstream: "github.com/ydli-ai/CSL"
+    census_verdict: "OK"
+    census_status: "not converted from CLUE packaging; underlying CSL converted from neuclir/csl (Apache-2.0) as csl_zh; CLUE csl dev/test abstracts excluded from csl_zh"
+  cluewsc2020_zh:
+    enabled: false  # audit: EXCLUDE; no converter; decontam_only
+    license: clue_cluewsc2020
+    converter: null
+    role: none
+    lang: zh
+    name: "CLUEWSC2020"
+    hf_id: "clue/clue"
+    hf_config: "cluewsc2020"
+    upstream: "github.com/CLUEbenchmark/CLUE"
+    census_verdict: "UNCLEAR"
+    census_status: "excluded (licence); dev+test used for decontamination"
+  c3_zh:
+    enabled: false  # audit: EXCLUDE; no converter; probe_only
+    license: clue_c3
+    converter: null
+    role: none
+    lang: zh
+    name: "C3"
+    hf_id: "clue/clue"
+    hf_config: "c3"
+    upstream: "github.com/nlpdata/c3"
+    census_verdict: "NC"
+    census_status: "excluded (NC); validation used by baselines probe"
+  chnsenticorp_zh:
+    enabled: false  # audit: EXCLUDE; no converter; probe_only
+    license: chnsenticorp
+    converter: null
+    role: none
+    lang: zh
+    name: "ChnSentiCorp"
+    hf_id: "lansinuote/ChnSentiCorp"
+    hf_config: null
+    upstream: "Tan Songbo hotel-review corpus (no official home)"
+    census_verdict: "UNCLEAR"
+    census_status: "excluded (licence); validation used by baselines probe"
+  lcqmc_zh:
+    enabled: false  # audit: EXCLUDE; no converter; probe_only
+    license: lcqmc
+    converter: null
+    role: none
+    lang: zh
+    name: "LCQMC"
+    hf_id: "C-MTEB/LCQMC"
+    hf_config: null
+    upstream: "icrc.hitsz.edu.cn/Article/show/171.html"
+    census_verdict: "RESEARCH"
+    census_status: "excluded (research-only); validation used by baselines probe"
+  bq_corpus_zh:
+    enabled: false  # audit: EXCLUDE; no converter
+    license: bq_corpus
+    converter: null
+    role: none
+    lang: zh
+    name: "BQ corpus"
+    hf_id: "C-MTEB/BQ"
+    hf_config: null
+    upstream: "icrc.hitsz.edu.cn/info/1037/1162.htm"
+    census_verdict: "RESEARCH"
+    census_status: "excluded (research-only)"
+  xnli_zh:
+    enabled: false  # audit: EXCLUDE; no converter; probe_only
+    license: xnli
+    converter: null
+    role: none
+    lang: zh
+    name: "XNLI-zh"
+    hf_id: "facebook/xnli"
+    hf_config: "zh"
+    upstream: "github.com/facebookresearch/XNLI"
+    census_verdict: "NC"
+    census_status: "excluded (NC); validation used by baselines probe (xnli_parallel)"
+  pawsx_zh:
+    enabled: true   # audit: CONDITIONAL, share-alike
+    license: pawsx_zh
+    converter: "pawsx_zh"
+    role: train
+    lang: zh
+    name: "PAWS-X zh"
+    hf_id: "google-research-datasets/paws-x"
+    hf_config: "zh"
+    revision: "4cd8187c404bda33cb1f62b49b001115862acf37"
+    upstream: "github.com/google-research-datasets/paws"
+    census_verdict: "OK"
+    census_status: "converted: pawsx_zh (official train/validation->dev/test)"
+  cmmlu_zh:
+    enabled: false  # audit: EXCLUDE; no converter; probe_only
+    license: cmmlu
+    converter: null
+    role: none
+    lang: zh
+    name: "CMMLU"
+    hf_id: "haonan-li/cmmlu"
+    hf_config: null
+    upstream: "github.com/haonan-li/CMMLU"
+    census_verdict: "NC"
+    census_status: "excluded (NC); usable only as a private benchmark"
+  c_eval_zh:
+    enabled: false  # audit: EXCLUDE; no converter; probe_only
+    license: ceval
+    converter: null
+    role: none
+    lang: zh
+    name: "C-Eval"
+    hf_id: "ceval/ceval-exam"
+    hf_config: null
+    upstream: "github.com/hkust-nlp/ceval"
+    census_verdict: "NC"
+    census_status: "excluded (NC); private benchmark only"
+  smp2017_ecdt_zh:
+    enabled: false  # audit: EXCLUDE; no converter
+    license: smp2017_ecdt
+    converter: null
+    role: none
+    lang: zh
+    name: "SMP2017-ECDT"
+    hf_id: null
+    hf_config: null
+    upstream: "github.com/HITlilingzhi/SMP2017ECDT-DATA"
+    census_verdict: "RESEARCH"
+    census_status: "excluded (research-only)"
+  crosswoz_zh:
+    enabled: true   # audit: CONDITIONAL
+    license: crosswoz_zh
+    converter: "crosswoz_zh"
+    role: train
+    lang: zh
+    name: "CrossWOZ"
+    hf_id: "ConvLab/crosswoz"
+    hf_config: null
+    revision: "4a3e56082543ed9eecb9c76ef5eadc1aa0cc5ca0"
+    upstream: "github.com/thu-coai/CrossWOZ"
+    census_verdict: "OK"
+    census_status: "converted: crosswoz_zh (official splits)"
+  risawoz_zh:
+    enabled: false  # audit: EXCLUDE; no converter
+    license: risawoz
+    converter: null
+    role: none
+    lang: zh
+    name: "RiSAWOZ"
+    hf_id: "GEM/RiSAWOZ"
+    hf_config: null
+    upstream: "github.com/terryqj0107/RiSAWOZ"
+    census_verdict: "NC"
+    census_status: "excluded (NC)"
+  bbt_fincuge_finfe_finnl_finna_finqa_finr:
+    enabled: false  # audit: EXCLUDE; no converter
+    license: bbt_fincuge
+    converter: null
+    role: none
+    lang: zh
+    name: "BBT-FinCUGE (FinFE, FinNL, FinNA, FinQA, FinRE, FinNSP)"
+    hf_id: "Maciel/FinCUGE-Instruction"
+    hf_config: null
+    upstream: "github.com/ssymmetry/BBT-FinCUGE-Applications"
+    census_verdict: "UNCLEAR"
+    census_status: "excluded (licence)"
+  finfe_zh:
+    enabled: false  # audit: EXCLUDE; no converter
+    license: finfe
+    converter: null
+    role: none
+    lang: zh
+    name: "FinFE"
+    hf_id: "FinanceMTEB/FinFE"
+    hf_config: null
+    upstream: "BBT-FinCUGE"
+    census_verdict: "UNCLEAR"
+    census_status: "excluded (licence)"
+  chinese_financial_news_sentiment_finchin:
+    enabled: false  # audit: EXCLUDE; no converter
+    license: finchinasentiment
+    converter: null
+    role: none
+    lang: zh
+    name: "Chinese financial news sentiment (FinChinaSentiment)"
+    hf_id: "FinanceMTEB/FinChinaSentiment"
+    hf_config: null
+    upstream: "unknown"
+    census_verdict: "UNCLEAR"
+    census_status: "excluded (licence)"
+  openfindata_fineval_sentiment_zh:
+    enabled: false  # audit: EXCLUDE; no converter
+    license: fineval_sentiment
+    converter: null
+    role: none
+    lang: zh
+    name: "OpenFinData / FinEval sentiment"
+    hf_id: "FinanceMTEB/FinEvaSentiment"
+    hf_config: null
+    upstream: "github.com/SUFE-AIFLM-Lab/FinEval"
+    census_verdict: "NC"
+    census_status: "excluded (conflicting; treated as NC)"
+  cfbenchmark_zh:
+    enabled: false  # audit: EXCLUDE; no converter
+    license: cfbenchmark
+    converter: null
+    role: none
+    lang: zh
+    name: "CFBenchmark"
+    hf_id: "TongjiFinLab/CFBenchmark"
+    hf_config: null
+    upstream: "github.com/TongjiFinLab/CFBenchmark"
+    census_verdict: "NC"
+    census_status: "excluded (NC + OpenAI-generated)"
+  financeiq_zh:
+    enabled: false  # audit: EXCLUDE; no converter
+    license: financeiq
+    converter: null
+    role: none
+    lang: zh
+    name: "FinanceIQ"
+    hf_id: "Duxiaoman-DI/FinanceIQ"
+    hf_config: null
+    upstream: "HF"
+    census_verdict: "NC"
+    census_status: "excluded (NC)"
+  thucnews_zh:
+    enabled: false  # audit: EXCLUDE; no converter
+    license: thucnews
+    converter: null
+    role: none
+    lang: zh
+    name: "THUCNews"
+    hf_id: "Tongjilibo/THUCNews"
+    hf_config: null
+    upstream: "thuctc.thunlp.org"
+    census_verdict: "UNCLEAR"
+    census_status: "excluded (licence)"
+  massive_zh:
+    enabled: true   # audit: ALLOW
+    license: massive_zh
+    converter: "massive_zh"
+    role: train
+    lang: zh
+    name: "MASSIVE zh-CN"
+    hf_id: "mteb/amazon_massive_intent"
+    hf_config: "zh-CN"
+    revision: "940fd47a81eaa7f2cc7b129674d945d618ac38c2"
+    upstream: "github.com/alexa/massive"
+    census_verdict: "OK"
+    census_status: "converted: massive_zh (official splits)"
+  cold_zh:
+    enabled: true   # audit: ALLOW
+    license: cold_zh
+    converter: "cold_zh"
+    role: train
+    lang: zh
+    name: "COLD (offensive language)"
+    hf_id: "thu-coai/cold"
+    hf_config: null
+    revision: "a31e56eb008ac3c6abe987094fb06a07fc53625f"
+    upstream: "github.com/thu-coai/COLDataset"
+    census_verdict: "OK"
+    census_status: "converted: cold_zh (official splits)"
+  csl_zh:
+    enabled: true   # audit: ALLOW
+    license: csl_zh
+    converter: "csl_zh"
+    role: train
+    lang: zh
+    name: "CSL (Chinese Scientific Literature, full)"
+    hf_id: "neuclir/csl"
+    hf_config: null
+    revision: "b4e118b56ca678375f5072b6328ded1ecb766083"
+    upstream: "github.com/ydli-ai/CSL"
+    census_verdict: "OK"
+    census_status: "converted: csl_zh (sha256 hash split, ~3.6% sample)"
+  sib200_zh:
+    enabled: true   # audit: CONDITIONAL, share-alike
+    license: sib200_zh
+    converter: "sib200_zh"
+    role: train
+    lang: zh
+    name: "SIB-200 zho_Hans"
+    hf_id: "Davlan/sib200"
+    hf_config: "zho_Hans"
+    revision: "38977a667f6fc264d5c26ec57a01e16db040b358"
+    upstream: "github.com/dadelani/sib-200"
+    census_verdict: "OK"
+    census_status: "converted: sib200_zh (official splits)"
+  nli26_zh_mnli:
+    enabled: false  # audit: EXCLUDE, share-alike; re-translate the English upstream, see DATA_LICENSES.md
+    license: nli26_zh_mnli
+    converter: "nli26_zh_mnli"
+    role: train
+    lang: zh
+    name: "multilingual-NLI-26lang zh_mnli (MultiNLI (OANC + CC BY(-SA) 3.0 + PD), machine-translated)"
+    hf_id: "MoritzLaurer/multilingual-NLI-26lang-2mil7"
+    hf_config: "zh_mnli"
+    revision: "510a233972a0d7ff0f767d82f46e046832c10538"
+    upstream: "MT of MultiNLI (OANC/CC BY/CC BY-SA), WANLI (CC BY 4.0), FEVER-NLI (CC BY-SA 3.0)"
+    census_verdict: "OK-INHERIT"
+    census_status: "converted: nli26_zh_mnli / _wanli / _fever (hash split)"
+  nli26_zh_wanli:
+    enabled: false  # audit: EXCLUDE; re-translate the English upstream, see DATA_LICENSES.md
+    license: nli26_zh_wanli
+    converter: "nli26_zh_wanli"
+    role: train
+    lang: zh
+    name: "multilingual-NLI-26lang zh_wanli (WANLI (CC BY 4.0), machine-translated)"
+    hf_id: "MoritzLaurer/multilingual-NLI-26lang-2mil7"
+    hf_config: "zh_wanli"
+    revision: "510a233972a0d7ff0f767d82f46e046832c10538"
+    upstream: "MT of MultiNLI (OANC/CC BY/CC BY-SA), WANLI (CC BY 4.0), FEVER-NLI (CC BY-SA 3.0)"
+    census_verdict: "OK-INHERIT"
+    census_status: "converted: nli26_zh_mnli / _wanli / _fever (hash split)"
+  nli26_zh_fever:
+    enabled: false  # audit: EXCLUDE, share-alike; re-translate the English upstream, see DATA_LICENSES.md
+    license: nli26_zh_fever
+    converter: "nli26_zh_fever"
+    role: train
+    lang: zh
+    name: "multilingual-NLI-26lang zh_fever (FEVER-NLI (CC BY-SA 3.0), machine-translated)"
+    hf_id: "MoritzLaurer/multilingual-NLI-26lang-2mil7"
+    hf_config: "zh_fever"
+    revision: "510a233972a0d7ff0f767d82f46e046832c10538"
+    upstream: "MT of MultiNLI (OANC/CC BY/CC BY-SA), WANLI (CC BY 4.0), FEVER-NLI (CC BY-SA 3.0)"
+    census_verdict: "OK-INHERIT"
+    census_status: "converted: nli26_zh_mnli / _wanli / _fever (hash split)"
+  oasst2_zh:
+    enabled: true   # audit: ALLOW
+    license: oasst2_zh
+    converter: "oasst2_zh"
+    role: train
+    lang: zh
+    name: "OpenAssistant oasst2 (zh)"
+    hf_id: "OpenAssistant/oasst2"
+    hf_config: null
+    revision: "179dd21fc55192153d94adb0e0ce8f69e222bf75"
+    upstream: "github.com/LAION-AI/Open-Assistant"
+    census_verdict: "OK"
+    census_status: "converted: oasst2_zh (train / validation->test)"
+  belebele_zh:
+    enabled: true   # audit: CONDITIONAL, share-alike
+    license: belebele_zh
+    converter: "belebele_zh"
+    role: eval_only
+    lang: zh
+    name: "Belebele zho_Hans"
+    hf_id: "facebook/belebele"
+    hf_config: "zho_Hans"
+    revision: "7899cdfa4e1e0d733fd77c848e2c273cb1d32be2"
+    upstream: "github.com/facebookresearch/belebele"
+    census_verdict: "OK"
+    census_status: "converted EVAL-ONLY: belebele_zh test"
+  xcopa_zh:
+    enabled: true   # audit: ALLOW
+    license: xcopa_zh
+    converter: "xcopa_zh"
+    role: eval_only
+    lang: zh
+    name: "XCOPA zh"
+    hf_id: "cambridgeltl/xcopa"
+    hf_config: "zh"
+    revision: "042f78955ba48e6404616762fa6e05e839c3907a"
+    upstream: "github.com/cambridgeltl/xcopa"
+    census_verdict: "OK"
+    census_status: "converted EVAL-ONLY: xcopa_zh dev/test"
+  xwinograd_zh:
+    enabled: true   # audit: ALLOW
+    license: xwinograd_zh
+    converter: "xwinograd_zh"
+    role: eval_only
+    lang: zh
+    name: "XWinograd zh"
+    hf_id: "Muennighoff/xwinograd"
+    hf_config: "zh"
+    revision: "90b619ef5278605cd4f572e3e8506ab16afd44f2"
+    upstream: "HF"
+    census_verdict: "OK"
+    census_status: "converted EVAL-ONLY: xwinograd_zh test"
+  globalmmlu_zh:
+    enabled: true   # audit: ALLOW
+    license: globalmmlu_zh
+    converter: "globalmmlu_zh"
+    role: eval_only
+    lang: zh
+    name: "Global-MMLU zh"
+    hf_id: "CohereLabs/Global-MMLU"
+    hf_config: "zh"
+    revision: "0e619dbeb34206cd48705a1a0ea7fb21cae09993"
+    upstream: "HF"
+    census_verdict: "OK"
+    census_status: "converted EVAL-ONLY: globalmmlu_zh (1,000 sampled)"
+  minds14_zh:
+    enabled: true   # audit: ALLOW
+    license: minds14_zh
+    converter: "minds14_zh"
+    role: eval_only
+    lang: zh
+    name: "MInDS-14 zh-CN"
+    hf_id: "PolyAI/minds14"
+    hf_config: "zh-CN"
+    revision: "40ce77cb32a384e4d50a568e1ec39ac804019d33"
+    upstream: "HF"
+    census_verdict: "OK"
+    census_status: "converted EVAL-ONLY: minds14_zh"
+  mmmlu_zh_cn:
+    enabled: false  # audit: ALLOW; no converter
+    license: mmmlu_zh
+    converter: null
+    role: none
+    lang: zh
+    name: "MMMLU zh_CN"
+    hf_id: "openai/MMMLU"
+    hf_config: "ZH_CN"
+    upstream: "HF"
+    census_verdict: "OK"
+    census_status: "not converted (Global-MMLU covers it)"
+  kdconv_zh:
+    enabled: false  # audit: ALLOW; no converter
+    license: kdconv
+    converter: null
+    role: none
+    lang: zh
+    name: "KdConv"
+    hf_id: "thu-coai/kdconv"
+    hf_config: null
+    upstream: "github.com/thu-coai/KdConv"
+    census_verdict: "OK"
+    census_status: "not converted (labels too trivial)"
+  dureader_yes_no_zh:
+    enabled: false  # audit: EXCLUDE; no converter
+    license: dureader_yesno
+    converter: null
+    role: none
+    lang: zh
+    name: "DuReader yes/no"
+    hf_id: "dirtycomputer/dureader_yesno-data"
+    hf_config: null
+    upstream: "github.com/baidu/DuReader"
+    census_verdict: "UNCLEAR"
+    census_status: "excluded (data licence unclear; HF mirror has no card)"
+  logiqa_2_0_zh:
+    enabled: false  # audit: EXCLUDE; no converter
+    license: logiqa2
+    converter: null
+    role: none
+    lang: zh
+    name: "LogiQA 2.0"
+    hf_id: "datatune/LogiQA2.0"
+    hf_config: null
+    upstream: "github.com/csitfun/LogiQA2.0"
+    census_verdict: "NC"
+    census_status: "excluded (NC)"
+  amazon_reviews_multi_zh:
+    enabled: false  # audit: EXCLUDE; no converter; probe_only
+    license: amazon_reviews_multi_zh
+    converter: null
+    role: none
+    lang: zh
+    name: "Amazon reviews multi zh"
+    hf_id: "SetFit/amazon_reviews_multi_zh"
+    hf_config: null
+    upstream: "docs.opendata.aws/amazon-reviews-ml/license.txt"
+    census_verdict: "NC"
+    census_status: "excluded (NC); validation used by baselines probe"
+  weibo_senti_100k_waimai_10k_online_shopp:
+    enabled: false  # audit: EXCLUDE; no converter
+    license: chinesenlpcorpus_sentiment
+    converter: null
+    role: none
+    lang: zh
+    name: "weibo_senti_100k / waimai_10k / online_shopping_10_cats"
+    hf_id: "dirtycomputer/weibo_senti_100k"
+    hf_config: null
+    upstream: "github.com/SophonPlus/ChineseNlpCorpus"
+    census_verdict: "UNCLEAR"
+    census_status: "excluded (licence)"
+  jd_onlineshopping_waimai_c_mteb_zh:
+    enabled: false  # audit: EXCLUDE; no converter
+    license: cmteb_reviews
+    converter: null
+    role: none
+    lang: zh
+    name: "JD / OnlineShopping / Waimai (C-MTEB)"
+    hf_id: "C-MTEB/JDReview-classification"
+    hf_config: null
+    upstream: "C-MTEB"
+    census_verdict: "UNCLEAR"
+    census_status: "excluded (licence)"
+  shibing624_nli_zh_atec_bq_lcqmc_pawsx_st:
+    enabled: false  # audit: EXCLUDE; no converter
+    license: shibing624_nli_zh
+    converter: null
+    role: none
+    lang: zh
+    name: "shibing624/nli_zh (ATEC/BQ/LCQMC/PAWSX/STS-B bundle)"
+    hf_id: "shibing624/nli_zh"
+    hf_config: null
+    upstream: "various"
+    census_verdict: "RESEARCH"
+    census_status: "excluded (constituents research-only)"
+  shibing624_snli_zh:
+    enabled: false  # audit: EXCLUDE; no converter
+    license: shibing624_snli_zh
+    converter: null
+    role: none
+    lang: zh
+    name: "shibing624/snli-zh"
+    hf_id: "shibing624/snli-zh"
+    hf_config: null
+    upstream: "MT of SNLI (CC BY-SA 4.0)"
+    census_verdict: "UNCLEAR"
+    census_status: "excluded (conflicting statements)"
+  xstorycloze_zh:
+    enabled: false  # audit: CONDITIONAL, share-alike; no converter
+    license: xstorycloze_zh
+    converter: null
+    role: none
+    lang: zh
+    name: "XStoryCloze zh"
+    hf_id: "juletxara/xstory_cloze"
+    hf_config: "zh"
+    upstream: "HF"
+    census_verdict: "OK"
+    census_status: "not converted (candidate extra eval)"
+  banking77_en:
+    enabled: true   # audit: ALLOW
+    license: banking77_en
+    converter: "banking77_en"
+    role: train
+    lang: en
+    name: "BANKING77"
+    hf_id: "legacy-datasets/banking77"
+    hf_config: null
+    revision: "f54121560de48f2852f90be299010d1d6dc612ec"
+    upstream: "github.com/PolyAI-LDN/task-specific-datasets"
+    census_verdict: "OK"
+    census_status: "converted: banking77_en (train / test)"
+  boolq_en:
+    enabled: true   # audit: CONDITIONAL, share-alike
+    license: boolq_en
+    converter: "boolq_en"
+    role: train
+    lang: en
+    name: "BoolQ"
+    hf_id: "google/boolq"
+    hf_config: null
+    revision: "35b264d03638db9f4ce671b711558bf7ff0f80d5"
+    upstream: "github.com/google-research-datasets/boolean-questions"
+    census_verdict: "OK"
+    census_status: "converted: boolq_en (train / validation->test)"
+  ag_news_en:
+    enabled: false  # audit: EXCLUDE; no converter; probe_only
+    license: ag_news
+    converter: null
+    role: none
+    lang: en
+    name: "AG News"
+    hf_id: "fancyzhx/ag_news"
+    hf_config: null
+    upstream: "groups.di.unipi.it/~gulli (offline)"
+    census_verdict: "NC"
+    census_status: "excluded (NC/research); test used by baselines probe"
+  mnli_en:
+    enabled: true   # audit: CONDITIONAL, share-alike
+    license: mnli_en
+    converter: "mnli_en"
+    role: train
+    lang: en
+    name: "MultiNLI"
+    hf_id: "nyu-mll/multi_nli"
+    hf_config: null
+    revision: "da70db2af9d09693783c3320c4249840212ee221"
+    upstream: "cims.nyu.edu/~sbowman/multinli"
+    census_verdict: "OK"
+    census_status: "converted: mnli_en (train / validation_mismatched->test); validation_matched untouched (baselines dev)"
+  sst_5_en:
+    enabled: false  # audit: EXCLUDE; no converter
+    license: sst5
+    converter: null
+    role: none
+    lang: en
+    name: "SST-5"
+    hf_id: "SetFit/sst5"
+    hf_config: null
+    upstream: "nlp.stanford.edu/sentiment"
+    census_verdict: "UNCLEAR"
+    census_status: "excluded (licence)"
+  yelp_review_full_en:
+    enabled: false  # audit: EXCLUDE; no converter
+    license: yelp_review_full
+    converter: null
+    role: none
+    lang: en
+    name: "Yelp review full"
+    hf_id: "Yelp/yelp_review_full"
+    hf_config: null
+    upstream: "Yelp dataset agreement"
+    census_verdict: "NC"
+    census_status: "excluded (NC)"
+  trec_en:
+    enabled: false  # audit: EXCLUDE; no converter
+    license: trec
+    converter: null
+    role: none
+    lang: en
+    name: "TREC"
+    hf_id: "CogComp/trec"
+    hf_config: null
+    upstream: "cogcomp.seas.upenn.edu/Data/QA/QC"
+    census_verdict: "UNCLEAR"
+    census_status: "excluded (licence)"
+  dbpedia14_en:
+    enabled: true   # audit: CONDITIONAL, share-alike
+    license: dbpedia14_en
+    converter: "dbpedia14_en"
+    role: train
+    lang: en
+    name: "DBpedia-14"
+    hf_id: "fancyzhx/dbpedia_14"
+    hf_config: null
+    revision: "9abd46cf7fc8b4c64290f26993c540b92aa145ac"
+    upstream: "Zhang et al. 2015"
+    census_verdict: "OK"
+    census_status: "converted: dbpedia14_en (10k train / 2k test sample)"
+  amazon_reviews_multi_en:
+    enabled: false  # audit: EXCLUDE; no converter; probe_only
+    license: amazon_reviews_multi_en
+    converter: null
+    role: none
+    lang: en
+    name: "Amazon reviews multi en"
+    hf_id: "SetFit/amazon_reviews_multi_en"
+    hf_config: null
+    upstream: "docs.opendata.aws/amazon-reviews-ml/license.txt"
+    census_verdict: "NC"
+    census_status: "excluded (NC); validation used by baselines probe"
+  imdb_en:
+    enabled: false  # audit: EXCLUDE; no converter
+    license: imdb
+    converter: null
+    role: none
+    lang: en
+    name: "IMDB"
+    hf_id: "stanfordnlp/imdb"
+    hf_config: null
+    upstream: "ai.stanford.edu/~amaas/data/sentiment"
+    census_verdict: "UNCLEAR"
+    census_status: "excluded (licence)"
+  paws_en:
+    enabled: true   # audit: CONDITIONAL, share-alike
+    license: paws_en
+    converter: "paws_en"
+    role: train
+    lang: en
+    name: "PAWS (labeled_final)"
+    hf_id: "google-research-datasets/paws"
+    hf_config: "labeled_final"
+    revision: "161ece9501cf0a11f3e48bd356eaa82de46d6a09"
+    upstream: "github.com/google-research-datasets/paws"
+    census_verdict: "OK"
+    census_status: "converted: paws_en"
+  csqa_en:
+    enabled: true   # audit: ALLOW
+    license: csqa_en
+    converter: "csqa_en"
+    role: train
+    lang: en
+    name: "CommonsenseQA"
+    hf_id: "tau/commonsense_qa"
+    hf_config: null
+    revision: "94630fe30dad47192a8546eb75f094926d47e155"
+    upstream: "tau-nlp"
+    census_verdict: "OK"
+    census_status: "converted: csqa_en (train / validation->test)"
+  arc_en:
+    enabled: true   # audit: CONDITIONAL, share-alike
+    license: arc_en
+    converter: "arc_en"
+    role: train
+    lang: en
+    name: "ARC"
+    hf_id: "allenai/ai2_arc"
+    hf_config: null
+    revision: "210d026faf9955653af8916fad021475a3f00453"
+    upstream: "allenai"
+    census_verdict: "OK"
+    census_status: "converted: arc_en"
+  goemotions_en:
+    enabled: true   # audit: ALLOW
+    license: goemotions_en
+    converter: "goemotions_en"
+    role: train
+    lang: en
+    name: "GoEmotions"
+    hf_id: "google-research-datasets/go_emotions"
+    hf_config: "simplified"
+    revision: "add492243ff905527e67aeb8b80c082af02207c3"
+    upstream: "github.com/google-research/google-research"
+    census_verdict: "OK"
+    census_status: "converted: goemotions_en"
+  civil_en:
+    enabled: true   # audit: ALLOW
+    license: civil_en
+    converter: "civil_en"
+    role: train
+    lang: en
+    name: "Civil Comments"
+    hf_id: "google/civil_comments"
+    hf_config: null
+    revision: "f2970eb3a55777454c94069077cc8d9b5866312d"
+    upstream: "Jigsaw"
+    census_verdict: "OK"
+    census_status: "converted: civil_en (bin-balanced sample)"
+  helpsteer2_en:
+    enabled: true   # audit: ALLOW
+    license: helpsteer2_en
+    converter: "helpsteer2_en"
+    role: train
+    lang: en
+    name: "HelpSteer2"
+    hf_id: "nvidia/HelpSteer2"
+    hf_config: null
+    revision: "990b2711a36180dd19d9c94b8627844866f8982a"
+    upstream: "NVIDIA"
+    census_verdict: "OK"
+    census_status: "converted: helpsteer2_en"
+  massive_en:
+    enabled: true   # audit: ALLOW
+    license: massive_en
+    converter: "massive_en"
+    role: train
+    lang: en
+    name: "MASSIVE en-US"
+    hf_id: "mteb/amazon_massive_intent"
+    hf_config: "en"
+    revision: "940fd47a81eaa7f2cc7b129674d945d618ac38c2"
+    upstream: "github.com/alexa/massive"
+    census_verdict: "OK"
+    census_status: "converted: massive_en"
+  oasst2_en:
+    enabled: true   # audit: ALLOW
+    license: oasst2_en
+    converter: "oasst2_en"
+    role: train
+    lang: en
+    name: "OpenAssistant oasst2 (en)"
+    hf_id: "OpenAssistant/oasst2"
+    hf_config: null
+    revision: "179dd21fc55192153d94adb0e0ce8f69e222bf75"
+    upstream: "LAION"
+    census_verdict: "OK"
+    census_status: "converted: oasst2_en (6k train cap)"
+  clinc150_en:
+    enabled: false  # audit: ALLOW; no converter
+    license: clinc150
+    converter: null
+    role: none
+    lang: en
+    name: "CLINC150"
+    hf_id: "clinc/clinc_oos"
+    hf_config: null
+    upstream: "clinc"
+    census_verdict: "OK"
+    census_status: "not converted (candidate)"
+  snli_en:
+    enabled: false  # audit: CONDITIONAL, share-alike; no converter
+    license: snli
+    converter: null
+    role: none
+    lang: en
+    name: "SNLI"
+    hf_id: "stanfordnlp/snli"
+    hf_config: null
+    upstream: "Stanford"
+    census_verdict: "OK"
+    census_status: "not converted (MNLI suffices)"
+  amazon_counterfactual_en:
+    enabled: false  # audit: EXCLUDE; no converter
+    license: amazon_counterfactual
+    converter: null
+    role: none
+    lang: en
+    name: "Amazon counterfactual"
+    hf_id: "mteb/amazon_counterfactual"
+    hf_config: null
+    upstream: "Amazon"
+    census_verdict: "OK"
+    census_status: "not converted (candidate)"
+  anli_en:
+    enabled: false  # audit: EXCLUDE; no converter
+    license: anli
+    converter: null
+    role: none
+    lang: en
+    name: "ANLI"
+    hf_id: "facebook/anli"
+    hf_config: null
+    upstream: "github.com/facebookresearch/anli"
+    census_verdict: "NC"
+    census_status: "excluded (NC)"
+  financial_phrasebank_en:
+    enabled: false  # audit: EXCLUDE; no converter
+    license: financial_phrasebank
+    converter: null
+    role: none
+    lang: en
+    name: "Financial PhraseBank"
+    hf_id: "takala/financial_phrasebank"
+    hf_config: null
+    upstream: "Malo et al."
+    census_verdict: "NC"
+    census_status: "excluded (NC); private benchmark only"
+  dair_ai_emotion_en:
+    enabled: false  # audit: EXCLUDE; no converter
+    license: dair_emotion
+    converter: null
+    role: none
+    lang: en
+    name: "dair-ai/emotion"
+    hf_id: "dair-ai/emotion"
+    hf_config: null
+    upstream: ""
+    census_verdict: "RESEARCH"
+    census_status: "excluded"
+  localllama_typed_decisions_en:
+    enabled: false  # audit: ALLOW; no converter; eval_only; train_allowed: false
+    license: typed_decisions
+    converter: null
+    role: none
+    lang: en
+    name: "LocalLLaMA/typed-decisions"
+    hf_id: "LocalLLaMA/typed-decisions"
+    hf_config: "all"
+    upstream: "HF"
+    census_verdict: "OK"
+    census_status: "EVAL-ONLY (baselines probe test); all its states are removed from our train"

@@ -1,0 +1,63 @@
+# Full run: jhu-clsp/mmBERT-base (MIT, 307M) on every dataset enabled in configs/datasets.yaml.
+# Target: one cloud GPU — Colab / Kaggle T4 16 GB (fp16 + gradient checkpointing, chosen automatically) or an
+# Ampere+ card on AutoDL / RunPod (bf16). Rerunning the same command resumes from runs/<name>/ckpt/last.pt.
+#   CONFIG=configs/train_base.yaml bash scripts/run_all.sh
+run:
+  name: mmbert-base-zh-v1   # v1: Laya-style training renderings (format_aug) and option shuffling; v0 had neither
+  seed: 13
+model:
+  base: jhu-clsp/mmBERT-base
+  revision: c5955035435e2bf121cde7f3c8863ef52ff35d82
+  max_len: 1024          # same context budget as laya-multilingual
+  head_max_len: 256
+  model_name: zhjudge-mmbert-base
+data:
+  sources: enabled       # every converter with enabled: true in configs/datasets.yaml
+  license_profile: default   # or permissive_strict: no share-alike training sources (then export.license: apache-2.0)
+  decontaminate: full    # the spike's full decontamination (downloads ~0.9 GB of datasets once)
+  probes: true
+train:
+  device: auto           # CUDA > MPS > CPU; env ZHJUDGE_DEVICE overrides
+  precision: auto        # bf16 on Ampere+, fp16 + GradScaler on T4/V100; env ZHJUDGE_PRECISION overrides
+  epochs: 2
+  batch_size: 32         # max sequences per batch
+  max_tokens: 8192       # max padded tokens per batch (bounds memory; long inputs get smaller batches)
+  grad_accum: 1
+  lr_encoder: 5.0e-5
+  lr_head: 2.0e-4
+  warmup: 0.06
+  grad_checkpointing: auto   # on for GPUs with < 20 GiB
+  memprobe: true         # CUDA: first measure the step's GPU peak without checkpointing in a separate process
+                         # (runs/<name>/memprobe.json, ~1 min, report only; a failure never stops training)
+  optimizer_impl: auto   # fused AdamW on CUDA (v0: foreach); a resumed run keeps its checkpoint's kernel
+  pad_multiple: 16       # pad training batches to a multiple of 16 tokens (v0: 32): same batches and logits, less
+                         # padding; only the head's dropout draws follow the padded shape
+  max_train_per_source: 30000  # balance: the largest sources (PAWS-X, CrossWOZ) are subsampled
+  format_aug: 0.5        # half of the training records written Laya-style: JSON state with named fields + a
+                         # field-aware instruction (30% of those in the other language); see zhjudge/data/views.py
+  option_shuffle: 0.5    # half of the choice records get their options in a new random order
+  calib_frac: 0.02
+  calib_cap: 4000
+  dev_max_records: 2000
+  eval_every: 1000       # optimizer updates between dev evaluations
+  save_every: 500        # optimizer updates between resumable checkpoints (~4 GB each, overwritten)
+  log_every: 50          # every log line also has |dL/dlogits| of the RL / CE / act terms (glogit_* in train_log)
+  monitor_calib_per_source: 120  # with every dev eval: <= 120 held-out calibration records per training source
+                         # (about half Laya-style) scored per source / type / rendering (dev_log.jsonl calib_slice)
+  max_hours: 0           # per run, e.g. 11 on Kaggle: save + exit 75 before the session ends; rerun to resume
+calibrate:
+  min_bucket: 200
+eval:
+  split: test
+  max_per_source: 2000
+  probes: true
+  baseline: true         # re-measure laya-multilingual on the same records (downloads ~650 MB once)
+  batch_size: 64
+  laya_test: 500         # per source, test records also scored written Laya-style (test:laya:*; ~8.9k decisions)
+export:
+  name: zhjudge-mmbert-base-v1
+  # weights licence for the model card (DATA_LICENSES.md section 6): cc-by-sa-4.0 when any share-alike source
+  # is enabled (the audit's `default` profile); apache-2.0 only for the `permissive_strict` profile
+  license: cc-by-sa-4.0
+compat:
+  n: 200

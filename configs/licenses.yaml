@@ -1,0 +1,890 @@
+# Data licence audit for zhjudge / 训练数据许可审计
+# Audited 2026-09-29 against live Hugging Face cards and upstream sources. Human-readable version: DATA_LICENSES.md
+# Not legal advice. When unsure the auditor chose EXCLUDE.
+#
+# class:
+#   ALLOW        explicit permissive licence from the rights holder (Apache-2.0, MIT, CC0, CC BY, "any purpose").
+#                Duties = standard attribution / licence notice (listed in `duties`).
+#   CONDITIONAL  usable, but the model card must honour extra duties: share-alike (CC BY-SA / GFDL),
+#                inherited upstream text licences, or disclosures. See `duties`.
+#   EXCLUDE      non-commercial, research-only, no licence / unknown with no upstream grant, conflicting terms,
+#                or terms forbidding redistribution of derivatives. Never train on these.
+# role:
+#   train          converted by data/build and used for training (dev/test splits are held out)
+#   eval_only      may be downloaded at run time to evaluate; never trained on
+#   probe_only     licence forbids training; used only locally to compute benchmark numbers, never redistributed
+#   decontam_only  downloaded only to remove overlapping text from our train split
+#   not_converted  candidate / reference; no converter yet
+# share_alike: true => inputs whose share-alike terms may attach to the weights if weights are "adapted material".
+# duties / card_notice: `zhjudge export` copies the licence, duties and card_notice (a disclosure the card must carry)
+#   of every trained and eval-only source into the model card's attribution table.
+#
+# Release profiles (see DATA_LICENSES.md section 6):
+#   default            class in [ALLOW, CONDITIONAL]                        -> cloud experiments; weights: CC BY-SA 4.0
+#   permissive_strict  class in [ALLOW, CONDITIONAL] and share_alike: false -> weights: Apache-2.0
+
+version: 1
+audited: "2026-09-29"
+profiles:
+  default:
+    classes: [ALLOW, CONDITIONAL]
+    weights_licence: CC-BY-SA-4.0
+  permissive_strict:
+    classes: [ALLOW, CONDITIONAL]
+    share_alike: false
+    weights_licence: Apache-2.0
+
+datasets:
+  # ------------------------------------------------------------------ zh, trainable (converted)
+  pawsx_zh:
+    hf_id: google-research-datasets/paws-x
+    hf_config: zh
+    lang: zh
+    role: train
+    class: CONDITIONAL
+    share_alike: true
+    license: "Google PAWS licence (free for any purpose) + underlying Wikipedia sentences (CC BY-SA 3.0)"
+    quote: "The dataset may be freely used for any purpose, although acknowledgement of Google LLC (\"Google\") as the data source would be appreciated."
+    evidence:
+      - https://github.com/google-research-datasets/paws/blob/master/LICENSE
+      - https://github.com/google-research-datasets/paws/tree/master/pawsx
+    duties: [acknowledge Google as data source, attribute Wikipedia (CC BY-SA 3.0) for PAWS-Wiki source sentences, share-alike question for weights]
+    note: "All PAWS-X pairs are sourced from PAWS-Wiki; zh train is machine-translated, dev/test human-translated. HF card tag: other."
+  massive_zh:
+    hf_id: mteb/amazon_massive_intent
+    hf_config: zh-CN
+    upstream_hf_id: AmazonScience/massive
+    lang: zh
+    role: train
+    class: ALLOW
+    share_alike: false
+    license: CC-BY-4.0
+    quote: "The MASSIVE dataset is licensed under CC BY 4.0, Copyright Amazon.com Inc. or its affiliates."
+    evidence:
+      - https://github.com/alexa/massive/blob/main/NOTICE.md
+      - https://huggingface.co/datasets/AmazonScience/massive
+    duties: ["credit \"MASSIVE, Copyright Amazon.com Inc. or its affiliates, CC BY 4.0\" (built on SLURP, CC BY 4.0)", indicate modifications]
+    note: "The mteb mirror we download is tagged apache-2.0; the upstream CC BY 4.0 terms govern."
+  crosswoz_zh:
+    hf_id: ConvLab/crosswoz
+    lang: zh
+    role: train
+    class: CONDITIONAL
+    share_alike: false
+    license: Apache-2.0
+    quote: "Apache License Version 2.0 (thu-coai/CrossWOZ LICENSE); GEM card: 'open license - commercial use allowed'; consent: 'Annotators agree using the dataset for research purpose.'"
+    evidence:
+      - https://github.com/thu-coai/CrossWOZ/blob/master/LICENSE
+      - https://huggingface.co/datasets/GEM/CrossWOZ
+    duties: [Apache-2.0 attribution and licence notice, cite Zhu et al. 2020, "disclose in model card that annotator consent was described as research use (GEM card lists other consented downstream use: Any)"]
+    card_notice: "CrossWOZ's data card states that annotators agreed to use of the dataset for research purposes; the same card lists an open licence with commercial use allowed and other consented downstream use: Any."
+  cold_zh:
+    hf_id: thu-coai/cold
+    lang: zh
+    role: train
+    class: ALLOW
+    share_alike: false
+    license: Apache-2.0
+    quote: "Apache License Version 2.0 (thu-coai/COLDataset LICENSE); HF card license: apache-2.0"
+    evidence:
+      - https://github.com/thu-coai/COLDataset/blob/main/LICENSE
+      - https://huggingface.co/datasets/thu-coai/cold
+    duties: [Apache-2.0 attribution and licence notice, cite Deng et al. 2022]
+    note: "Offensive-language comments collected from Chinese social media; licence granted by THU-COAI."
+  csl_zh:
+    hf_id: neuclir/csl
+    lang: zh
+    role: train
+    class: ALLOW
+    share_alike: false
+    license: Apache-2.0
+    quote: "This dataset is based off the Chinese Scientific Literature Dataset under Apache 2.0. (neuclir/csl); ydli-ai/CSL readme: Licensed under the Apache License, Version 2.0"
+    evidence:
+      - https://github.com/ydli-ai/CSL/blob/master/readme.md
+      - https://huggingface.co/datasets/neuclir/csl
+    duties: [Apache-2.0 attribution and licence notice, cite Li et al. 2022 (COLING)]
+    note: "Titles/abstracts/keywords of Chinese core-journal papers (2010-2020); we train only on labels (discipline, keyword yes/no)."
+  sib200_zh:
+    hf_id: Davlan/sib200
+    hf_config: zho_Hans
+    lang: zh
+    role: train
+    class: CONDITIONAL
+    share_alike: true
+    license: CC-BY-SA-4.0
+    quote: "HF card license: cc-by-sa-4.0; FLORES-200: CC-BY-SA 4.0"
+    evidence:
+      - https://huggingface.co/datasets/Davlan/sib200
+      - https://github.com/facebookresearch/flores/blob/main/README.md
+    duties: [attribute SIB-200 (Adelani et al. 2024) and FLORES-200 (NLLB Team), CC BY-SA 4.0 share-alike question for weights]
+  nli26_zh_mnli:
+    hf_id: MoritzLaurer/multilingual-NLI-26lang-2mil7
+    hf_config: zh_mnli
+    lang: zh
+    role: train
+    class: EXCLUDE
+    share_alike: true
+    license: "none on the translated dataset (card has no licence field or text); English source MultiNLI = OANC + CC BY-SA 3.0 + CC BY 3.0"
+    quote: "(card states no licence)"
+    evidence:
+      - https://huggingface.co/datasets/MoritzLaurer/multilingual-NLI-26lang-2mil7
+      - https://huggingface.co/datasets/nyu-mll/multi_nli
+    duties: []
+    reason: "The distributor of the Chinese translations grants no licence. Upstream English is licensed, but the translation layer is not; conservative rule applies."
+    remediation: "Re-translate the English MultiNLI originals ourselves (e.g. Helsinki-NLP/opus-mt-en-zh, the model the author used) or obtain a written licence from the author; the result is then CONDITIONAL (share-alike)."
+  nli26_zh_wanli:
+    hf_id: MoritzLaurer/multilingual-NLI-26lang-2mil7
+    hf_config: zh_wanli
+    lang: zh
+    role: train
+    class: EXCLUDE
+    share_alike: false
+    license: "none on the translated dataset; English source WANLI = CC BY 4.0"
+    quote: "(card states no licence)"
+    evidence:
+      - https://huggingface.co/datasets/MoritzLaurer/multilingual-NLI-26lang-2mil7
+      - https://huggingface.co/datasets/alisawuffles/WANLI
+    duties: []
+    reason: "No licence on the translation layer."
+    remediation: "Re-translate alisawuffles/WANLI (CC BY 4.0) ourselves -> ALLOW (note: WANLI examples were generated with GPT-3 and labelled by crowd workers; disclose)."
+  nli26_zh_fever:
+    hf_id: MoritzLaurer/multilingual-NLI-26lang-2mil7
+    hf_config: zh_fever
+    lang: zh
+    role: train
+    class: EXCLUDE
+    share_alike: true
+    license: "none on the translated dataset; English source FEVER = CC BY-SA 3.0 (NLI-FEVER conversion code MIT)"
+    quote: "(card states no licence)"
+    evidence:
+      - https://huggingface.co/datasets/MoritzLaurer/multilingual-NLI-26lang-2mil7
+      - https://fever.ai/dataset/fever.html
+    duties: []
+    reason: "No licence on the translation layer."
+    remediation: "Re-translate NLI-FEVER ourselves -> CONDITIONAL (CC BY-SA 3.0, Wikipedia-derived)."
+  oasst2_zh:
+    hf_id: OpenAssistant/oasst2
+    lang: zh
+    role: train
+    class: ALLOW
+    share_alike: false
+    license: Apache-2.0
+    quote: "license: apache-2.0"
+    evidence:
+      - https://huggingface.co/datasets/OpenAssistant/oasst2
+    duties: [Apache-2.0 attribution and licence notice, cite Köpf et al. 2023]
+
+  # ------------------------------------------------------------------ en, trainable (converted)
+  banking77_en:
+    hf_id: legacy-datasets/banking77
+    lang: en
+    role: train
+    class: ALLOW
+    share_alike: false
+    license: CC-BY-4.0
+    quote: "Attribution 4.0 International (PolyAI-LDN/task-specific-datasets LICENSE)"
+    evidence:
+      - https://github.com/PolyAI-LDN/task-specific-datasets/blob/master/LICENSE
+    duties: [credit PolyAI (Casanueva et al. 2020), CC BY 4.0 link, indicate modifications]
+  boolq_en:
+    hf_id: google/boolq
+    lang: en
+    role: train
+    class: CONDITIONAL
+    share_alike: true
+    license: CC-BY-SA-3.0
+    quote: "BoolQ is released under the Creative Commons Share-Alike 3.0 license."
+    evidence:
+      - https://github.com/google-research-datasets/boolean-questions#license
+    duties: [credit Google (Clark et al. 2019), CC BY-SA 3.0 link, share-alike question for weights]
+  dbpedia14_en:
+    hf_id: fancyzhx/dbpedia_14
+    lang: en
+    role: train
+    class: CONDITIONAL
+    share_alike: true
+    license: "CC-BY-SA-3.0 and GFDL (Wikipedia-derived)"
+    quote: "The DBPedia ontology classification dataset is licensed under the terms of the Creative Commons Attribution-ShareAlike License and the GNU Free Documentation License."
+    evidence:
+      - https://huggingface.co/datasets/fancyzhx/dbpedia_14
+    duties: [credit Zhang et al. 2015 / DBpedia / Wikipedia, elect CC BY-SA (not GFDL), share-alike question for weights]
+  mnli_en:
+    hf_id: nyu-mll/multi_nli
+    lang: en
+    role: train
+    class: CONDITIONAL
+    share_alike: true
+    license: "OANC licence (majority) + CC BY-SA 3.0 (Seven Swords) + CC BY 3.0 (two fiction works) + US public domain"
+    quote: "The majority of the corpus is released under the OANC's license, which allows all content to be freely used, modified, and shared under permissive terms. ... Seven Swords is available under a Creative Commons Share-Alike 3.0 Unported License"
+    evidence:
+      - https://huggingface.co/datasets/nyu-mll/multi_nli
+      - https://cims.nyu.edu/~sbowman/multinli/
+    duties: [credit Williams et al. 2018 and OANC, CC BY 3.0 credit for Living History / Password Incorrect, share-alike question for weights (fiction genre)]
+    note: "validation_matched is kept untouched as the baselines dev probe."
+  paws_en:
+    hf_id: google-research-datasets/paws
+    hf_config: labeled_final
+    lang: en
+    role: train
+    class: CONDITIONAL
+    share_alike: true
+    license: "Google PAWS licence (free for any purpose) + underlying Wikipedia sentences (CC BY-SA 3.0)"
+    quote: "The dataset may be freely used for any purpose, although acknowledgement of Google LLC (\"Google\") as the data source would be appreciated."
+    evidence:
+      - https://github.com/google-research-datasets/paws/blob/master/LICENSE
+    duties: [acknowledge Google, attribute Wikipedia (CC BY-SA 3.0), share-alike question for weights]
+    note: "labeled_final = PAWS-Wiki only; PAWS-QQP is not used (Quora licence)."
+  csqa_en:
+    hf_id: tau/commonsense_qa
+    lang: en
+    role: train
+    class: ALLOW
+    share_alike: false
+    license: MIT
+    quote: "Our dataset is licensed under an MIT license. (first author, GitHub issue #5)"
+    evidence:
+      - https://github.com/jonathanherzig/commonsenseqa/issues/5
+      - https://huggingface.co/datasets/tau/commonsense_qa
+    duties: [include MIT copyright and permission notice, cite Talmor et al. 2019]
+  arc_en:
+    hf_id: allenai/ai2_arc
+    lang: en
+    role: train
+    class: CONDITIONAL
+    share_alike: true
+    license: CC-BY-SA-4.0
+    quote: "license: cc-by-sa-4.0 (allenai org card; allenai.org/data/arc redirects to it)"
+    evidence:
+      - https://huggingface.co/datasets/allenai/ai2_arc
+    duties: [credit AI2 (Clark et al. 2018), CC BY-SA 4.0 link, share-alike question for weights]
+  goemotions_en:
+    hf_id: google-research-datasets/go_emotions
+    hf_config: simplified
+    lang: en
+    role: train
+    class: ALLOW
+    share_alike: false
+    license: CC-BY-4.0
+    quote: "All datasets in this repository are released under the CC BY 4.0 International license (google-research README)"
+    evidence:
+      - https://github.com/google-research/google-research/blob/master/README.md
+      - https://huggingface.co/datasets/google-research-datasets/go_emotions
+    duties: [credit Google (Demszky et al. 2020), CC BY 4.0 link, indicate modifications]
+    note: "HF card says apache-2.0; the stricter upstream CC BY 4.0 is applied. Text is Reddit comments."
+  civil_en:
+    hf_id: google/civil_comments
+    lang: en
+    role: train
+    class: ALLOW
+    share_alike: false
+    license: CC0-1.0
+    quote: "This dataset is released under CC0, as is the underlying comment text."
+    evidence:
+      - https://huggingface.co/datasets/google/civil_comments
+    duties: [none required; courtesy citation of Borkan et al. 2019 / Jigsaw]
+  helpsteer2_en:
+    hf_id: nvidia/HelpSteer2
+    lang: en
+    role: train
+    class: ALLOW
+    share_alike: false
+    license: CC-BY-4.0
+    quote: "HelpSteer2 is an open-source Helpfulness Dataset (CC-BY-4.0)"
+    evidence:
+      - https://huggingface.co/datasets/nvidia/HelpSteer2
+    duties: [credit NVIDIA (Wang et al. 2024), CC BY 4.0 link, indicate modifications]
+    note: "Prompts mostly from ShareGPT; responses from NVIDIA in-house LLMs ('none from proprietary LLM providers such as OpenAI'). We train on the human ratings."
+  massive_en:
+    hf_id: mteb/amazon_massive_intent
+    hf_config: en
+    upstream_hf_id: AmazonScience/massive
+    lang: en
+    role: train
+    class: ALLOW
+    share_alike: false
+    license: CC-BY-4.0
+    quote: "The MASSIVE dataset is licensed under CC BY 4.0, Copyright Amazon.com Inc. or its affiliates."
+    evidence:
+      - https://github.com/alexa/massive/blob/main/NOTICE.md
+    duties: [credit Amazon (MASSIVE) and SLURP, CC BY 4.0 link, indicate modifications]
+  oasst2_en:
+    hf_id: OpenAssistant/oasst2
+    lang: en
+    role: train
+    class: ALLOW
+    share_alike: false
+    license: Apache-2.0
+    quote: "license: apache-2.0"
+    evidence:
+      - https://huggingface.co/datasets/OpenAssistant/oasst2
+    duties: [Apache-2.0 attribution and licence notice]
+
+  # ------------------------------------------------------------------ eval-only (converted / probes)
+  belebele_zh:
+    hf_id: facebook/belebele
+    hf_config: zho_Hans
+    lang: zh
+    role: eval_only
+    class: CONDITIONAL
+    share_alike: true
+    license: CC-BY-SA-4.0
+    quote: "The Belebele dataset is licensed under the license found in the LICENSE_CC-BY-SA4.0 file"
+    evidence:
+      - https://github.com/facebookresearch/belebele#license
+    duties: [cite Bandarkar et al. 2024 when reporting scores]
+  xcopa_zh:
+    hf_id: cambridgeltl/xcopa
+    hf_config: zh
+    lang: zh
+    role: eval_only
+    class: ALLOW
+    share_alike: false
+    license: CC-BY-4.0
+    quote: "Creative Commons Attribution 4.0 International (CC BY 4.0)"
+    evidence:
+      - https://huggingface.co/datasets/cambridgeltl/xcopa
+    duties: [cite Ponti et al. 2020 when reporting scores]
+  xwinograd_zh:
+    hf_id: Muennighoff/xwinograd
+    hf_config: zh
+    lang: zh
+    role: eval_only
+    class: ALLOW
+    share_alike: false
+    license: CC-BY-4.0
+    quote: "this dataset is licensed under CC BY 4.0. I.e. you can use it for commercial purposes"
+    evidence:
+      - https://huggingface.co/datasets/Muennighoff/xwinograd
+    duties: [cite Muennighoff et al. 2022 / Tikhonov & Ryabinin 2021]
+  globalmmlu_zh:
+    hf_id: CohereLabs/Global-MMLU
+    hf_config: zh
+    lang: zh
+    role: eval_only
+    class: ALLOW
+    share_alike: false
+    license: Apache-2.0
+    quote: "This dataset can be used for any purpose, under the terms of the Apache 2.0 License."
+    evidence:
+      - https://huggingface.co/datasets/CohereLabs/Global-MMLU
+    duties: [cite Singh et al. 2024]
+  minds14_zh:
+    hf_id: PolyAI/minds14
+    hf_config: zh-CN
+    lang: zh
+    role: eval_only
+    class: ALLOW
+    share_alike: false
+    license: CC-BY-4.0
+    quote: "license: cc-by-4.0"
+    evidence:
+      - https://huggingface.co/datasets/PolyAI/minds14
+    duties: [cite Gerz et al. 2021]
+  typed_decisions:
+    hf_id: LocalLLaMA/typed-decisions
+    hf_config: all
+    lang: en
+    role: eval_only
+    class: ALLOW
+    share_alike: false
+    train_allowed: false
+    license: Apache-2.0
+    quote: "license: apache-2.0; gold = 'mean of three samples from a teacher endpoint of roughly 4B-class capability'"
+    evidence:
+      - https://huggingface.co/datasets/LocalLLaMA/typed-decisions
+    duties: [cite when reporting scores]
+    reason: "Licence permits training, but gold labels come from an unnamed LLM teacher endpoint; project rule 'never train on Jev API outputs' cannot be verified, so eval-only. Its states are also removed from our train split."
+  feishu_zh:
+    hf_id: null
+    source: "NandhaKishorM/laya research/benchmarks/feishu_zh (GitHub)"
+    lang: zh
+    role: eval_only
+    class: ALLOW
+    share_alike: false
+    license: Apache-2.0
+    quote: "Laya repository LICENSE: Apache-2.0"
+    evidence:
+      - https://github.com/NandhaKishorM/laya
+    duties: [cite Laya when reporting scores]
+
+  # ------------------------------------------------------------------ excluded: CLUE and Chinese benchmarks
+  clue_tnews:
+    hf_id: clue/clue
+    hf_config: tnews
+    lang: zh
+    role: probe_only
+    class: EXCLUDE
+    license: unknown
+    quote: "clue/clue card: license: unknown; CLUEbenchmark/CLUE has no LICENSE file (checked 2026-09-29)"
+    evidence: [https://huggingface.co/datasets/clue/clue, https://github.com/CLUEbenchmark/CLUE]
+    reason: "No licence; titles scraped from Toutiao."
+  clue_iflytek:
+    hf_id: clue/clue
+    hf_config: iflytek
+    lang: zh
+    role: probe_only
+    class: EXCLUDE
+    license: unknown
+    quote: "clue/clue card: license: unknown; no LICENSE upstream"
+    evidence: [https://huggingface.co/datasets/clue/clue, https://github.com/CLUEbenchmark/CLUE]
+    reason: "No licence; app descriptions from iFLYTEK."
+  clue_afqmc:
+    hf_id: clue/clue
+    hf_config: afqmc
+    lang: zh
+    role: probe_only
+    class: EXCLUDE
+    license: unknown
+    quote: "clue/clue card: license: unknown; originally Ant Financial ATEC 2018 contest data"
+    evidence: [https://huggingface.co/datasets/clue/clue, https://github.com/CLUEbenchmark/CLUE]
+    reason: "No licence; contest data with no redistribution terms."
+  clue_ocnli:
+    hf_id: clue/clue
+    hf_config: ocnli
+    lang: zh
+    role: probe_only
+    class: EXCLUDE
+    license: CC-BY-NC-2.0
+    quote: "## License - Attribution-NonCommercial 2.0 Generic (CC BY-NC 2.0)"
+    evidence: [https://github.com/CLUEbenchmark/OCNLI#license]
+    reason: "Non-commercial."
+  clue_cmnli:
+    hf_id: clue/clue
+    hf_config: cmnli
+    lang: zh
+    role: decontam_only
+    class: EXCLUDE
+    license: "unknown (CLUE packaging) + XNLI CC BY-NC 4.0"
+    quote: "XNLI LICENSE: Attribution-NonCommercial 4.0 International"
+    evidence: [https://github.com/facebookresearch/XNLI/blob/main/LICENSE, https://huggingface.co/datasets/clue/clue]
+    reason: "Contains XNLI (NC); CLUE's own MT of MNLI carries no licence."
+  clue_csl:
+    hf_id: clue/clue
+    hf_config: csl
+    lang: zh
+    role: decontam_only
+    class: EXCLUDE
+    license: unknown
+    quote: "clue/clue card: license: unknown"
+    evidence: [https://huggingface.co/datasets/clue/clue]
+    reason: "CLUE's 2020 keyword-recognition packaging (with generated fake keywords) has no licence; the Apache-2.0 grant of ydli-ai/CSL covers the COLING 2022 CSL corpus, which we use instead as csl_zh. CLUE csl dev/test abstracts are removed from csl_zh."
+  clue_cluewsc2020:
+    hf_id: clue/clue
+    hf_config: cluewsc2020
+    lang: zh
+    role: decontam_only
+    class: EXCLUDE
+    license: unknown
+    quote: "clue/clue card: license: unknown"
+    evidence: [https://huggingface.co/datasets/clue/clue]
+    reason: "No licence."
+  clue_c3:
+    hf_id: clue/clue
+    hf_config: c3
+    lang: zh
+    role: probe_only
+    class: EXCLUDE
+    license: "non-commercial research only"
+    quote: "C3 dataset is intended for non-commercial research purpose only."
+    evidence: [https://github.com/nlpdata/c3/blob/master/license.txt]
+    reason: "Non-commercial."
+  chnsenticorp:
+    hf_id: lansinuote/ChnSentiCorp
+    lang: zh
+    role: probe_only
+    class: EXCLUDE
+    license: unknown
+    quote: "(HF mirror has no card - README 404; SophonPlus/ChineseNlpCorpus has no LICENSE; no official home)"
+    evidence: [https://huggingface.co/datasets/lansinuote/ChnSentiCorp, https://github.com/SophonPlus/ChineseNlpCorpus]
+    reason: "No licence anywhere (Tan Songbo hotel-review corpus)."
+  lcqmc:
+    hf_id: C-MTEB/LCQMC
+    lang: zh
+    role: probe_only
+    class: EXCLUDE
+    license: "research only, by application"
+    quote: "The dataset is only for the specified applicant or study groups for research purposes. Without permission, it may not be used for any commercial purposes."
+    evidence: [http://icrc.hitsz.edu.cn/Article/show/171.html]
+    reason: "Research-only; text copyright belongs to Baidu Zhidao writers. Mirror Tongjilibo/LCQMC is re-tagged apache-2.0, contradicting upstream."
+  bq_corpus:
+    hf_id: C-MTEB/BQ
+    lang: zh
+    role: not_converted
+    class: EXCLUDE
+    license: "research only, by application"
+    quote: "The dataset is only for the specified applicant or study groups for research purposes. Without permission, it may not be used for any commercial purposes."
+    evidence: [http://icrc.hitsz.edu.cn/info/1037/1162.htm]
+    reason: "Research-only."
+  xnli:
+    hf_id: facebook/xnli
+    hf_config: zh
+    lang: zh
+    role: probe_only
+    class: EXCLUDE
+    license: CC-BY-NC-4.0
+    quote: "Attribution-NonCommercial 4.0 International"
+    evidence: [https://github.com/facebookresearch/XNLI/blob/main/LICENSE]
+    reason: "Non-commercial (HF card has no licence field; upstream LICENSE governs). Also covers the MT train split."
+  amazon_reviews_multi_zh:
+    hf_id: SetFit/amazon_reviews_multi_zh
+    upstream_hf_id: defunct-datasets/amazon_reviews_multi
+    lang: zh
+    role: probe_only
+    class: EXCLUDE
+    license: "Amazon agreement, non-commercial research only; dataset withdrawn"
+    quote: "Amazon has licensed this dataset under its own agreement for non-commercial research usage only."
+    evidence: [https://huggingface.co/datasets/defunct-datasets/amazon_reviews_multi, https://github.com/awslabs/open-data-docs/]
+    reason: "Non-commercial; the provider has withdrawn the dataset ('defunct ... no longer accessible due to the decision of data providers')."
+  thucnews:
+    hf_id: Tongjilibo/THUCNews
+    lang: zh
+    role: not_converted
+    class: EXCLUDE
+    license: "free for research; commercial use requires a licence agreement"
+    quote: "THUCTC面向国内外大学、研究所、企业以及个人研究者免费开放源。如有机构或个人拟将THUCTC用于商业目的，请发邮件至thunlp@163.com洽谈技术许可协议。"
+    evidence: [http://thuctc.thunlp.org/]
+    reason: "Commercial use needs a licence; text is Sina News 2005-2011. Mirror re-tagged apache-2.0, contradicting upstream."
+  cmmlu:
+    hf_id: haonan-li/cmmlu
+    lang: zh
+    role: probe_only
+    class: EXCLUDE
+    license: CC-BY-NC-SA-4.0
+    quote: "CMMLU数据集采用 Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License."
+    evidence: [https://github.com/haonan-li/CMMLU]
+    reason: "Non-commercial (HF tag says cc-by-nc-4.0; either way NC). Private benchmark only."
+  ceval:
+    hf_id: ceval/ceval-exam
+    lang: zh
+    role: probe_only
+    class: EXCLUDE
+    license: CC-BY-NC-SA-4.0
+    quote: "The C-Eval dataset is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License."
+    evidence: [https://github.com/hkust-nlp/ceval#licenses]
+    reason: "Non-commercial (code is MIT, data is NC-SA). Private benchmark only."
+
+  # ------------------------------------------------------------------ excluded: English candidate sources
+  ag_news:
+    hf_id: fancyzhx/ag_news
+    lang: en
+    role: probe_only
+    class: EXCLUDE
+    license: "academic / non-commercial"
+    quote: "The dataset is provided by the academic comunity for research purposes in data mining ... and any other non-commercial activity."
+    evidence: [https://huggingface.co/datasets/fancyzhx/ag_news]
+    reason: "Non-commercial / research (HF tag: unknown; upstream page offline)."
+  sst5:
+    hf_id: SetFit/sst5
+    lang: en
+    role: not_converted
+    class: EXCLUDE
+    license: unknown
+    quote: "stanfordnlp/sst card: Licensing Information [Needs More Information]"
+    evidence: [https://huggingface.co/datasets/stanfordnlp/sst, https://nlp.stanford.edu/sentiment/]
+    reason: "No licence (SST text is from Rotten Tomatoes reviews)."
+  glue_sst2:
+    hf_id: nyu-mll/glue
+    hf_config: sst2
+    lang: en
+    role: probe_only
+    class: EXCLUDE
+    license: unknown
+    quote: "The primary GLUE tasks are built on and derived from existing datasets. We refer users to the original licenses accompanying each dataset."
+    evidence: [https://huggingface.co/datasets/nyu-mll/glue]
+    reason: "Same SST text; no licence."
+  glue_qqp:
+    hf_id: nyu-mll/glue
+    hf_config: qqp
+    lang: en
+    role: probe_only
+    class: EXCLUDE
+    license: "Quora terms"
+    quote: "We cannot directly distribute the raw PAWS-QQP data due to the license of QQP. (Google PAWS README)"
+    evidence: [https://github.com/google-research-datasets/paws, https://huggingface.co/datasets/nyu-mll/glue]
+    reason: "Quora terms restrict redistribution."
+  dream:
+    hf_id: null
+    source: "github.com/nlpdata/dream data/dev.json (raw URL, sha256-pinned in zhjudge.data.probes)"
+    lang: en
+    role: probe_only
+    class: EXCLUDE
+    license: "non-commercial research only"
+    quote: "DREAM dataset is intended for non-commercial research purpose only."
+    evidence: [https://github.com/nlpdata/dream/blob/master/license.txt]
+    reason: "Non-commercial. Used only in the English control probe (reading_mc family), never trained on or redistributed."
+  yelp_review_full:
+    hf_id: Yelp/yelp_review_full
+    lang: en
+    role: not_converted
+    class: EXCLUDE
+    license: "Yelp Dataset Agreement (academic, non-commercial)"
+    quote: "license_details: yelp-licence ... official yelp-dataset-agreement"
+    evidence: [https://huggingface.co/datasets/Yelp/yelp_review_full]
+    reason: "Non-commercial agreement."
+  trec:
+    hf_id: CogComp/trec
+    lang: en
+    role: not_converted
+    class: EXCLUDE
+    license: unknown
+    quote: "Licensing Information: [More Information Needed]"
+    evidence: [https://huggingface.co/datasets/CogComp/trec, https://cogcomp.seas.upenn.edu/Data/QA/QC/]
+    reason: "No licence."
+  amazon_reviews_multi_en:
+    hf_id: SetFit/amazon_reviews_multi_en
+    upstream_hf_id: defunct-datasets/amazon_reviews_multi
+    lang: en
+    role: probe_only
+    class: EXCLUDE
+    license: "Amazon agreement, non-commercial research only; dataset withdrawn"
+    quote: "Amazon has licensed this dataset under its own agreement for non-commercial research usage only."
+    evidence: [https://huggingface.co/datasets/defunct-datasets/amazon_reviews_multi]
+    reason: "Non-commercial. SetFit mirror is tagged apache-2.0, contradicting upstream."
+  imdb:
+    hf_id: stanfordnlp/imdb
+    lang: en
+    role: not_converted
+    class: EXCLUDE
+    license: unknown
+    quote: "HF card license: other; Licensing Information: [More Information Needed]; no licence on the Stanford page"
+    evidence: [https://huggingface.co/datasets/stanfordnlp/imdb, https://ai.stanford.edu/~amaas/data/sentiment/]
+    reason: "No licence."
+
+  # ------------------------------------------------------------------ excluded: other candidates
+  nli26_zh_anli:
+    hf_id: MoritzLaurer/multilingual-NLI-26lang-2mil7
+    hf_config: zh_anli
+    lang: zh
+    role: not_converted
+    class: EXCLUDE
+    license: "none + ANLI CC BY-NC 4.0"
+    quote: "facebook/anli: license cc-by-nc-4.0"
+    evidence: [https://huggingface.co/datasets/facebook/anli]
+    reason: "Non-commercial source."
+  nli26_zh_ling:
+    hf_id: MoritzLaurer/multilingual-NLI-26lang-2mil7
+    hf_config: zh_ling
+    lang: zh
+    role: not_converted
+    class: EXCLUDE
+    license: "none; LingNLI licence unverified"
+    quote: "(card states no licence)"
+    evidence: [https://huggingface.co/datasets/MoritzLaurer/multilingual-NLI-26lang-2mil7]
+    reason: "No licence found."
+  smp2017_ecdt:
+    hf_id: null
+    source: HITlilingzhi/SMP2017ECDT-DATA
+    lang: zh
+    role: not_converted
+    class: EXCLUDE
+    license: "research use"
+    quote: "评测所用的全部训练及测试数据，现开源供研究使用。"
+    evidence: [https://github.com/HITlilingzhi/SMP2017ECDT-DATA]
+    reason: "Research-use only, no licence."
+  risawoz:
+    hf_id: GEM/RiSAWOZ
+    lang: zh
+    role: not_converted
+    class: EXCLUDE
+    license: CC-BY-NC-4.0
+    quote: "We make the dataset under the following licenses: Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)"
+    evidence: [https://github.com/terryqj0107/RiSAWOZ#data-license]
+    reason: "Non-commercial; GEM mirror tagged cc-by-4.0 contradicts upstream."
+  bbt_fincuge:
+    hf_id: Maciel/FinCUGE-Instruction
+    lang: zh
+    role: not_converted
+    class: EXCLUDE
+    license: unknown
+    quote: "(upstream repo has no LICENSE and no data terms; HF mirror re-tagged apache-2.0)"
+    evidence: [https://github.com/ssymmetry/BBT-FinCUGE-Applications]
+    reason: "No upstream licence."
+  finfe:
+    hf_id: FinanceMTEB/FinFE
+    lang: zh
+    role: not_converted
+    class: EXCLUDE
+    license: unknown
+    quote: "(no card licence; upstream BBT-FinCUGE none)"
+    evidence: [https://huggingface.co/datasets/FinanceMTEB/FinFE]
+    reason: "No licence."
+  finchinasentiment:
+    hf_id: FinanceMTEB/FinChinaSentiment
+    lang: zh
+    role: not_converted
+    class: EXCLUDE
+    license: unknown
+    quote: "(no card licence; upstream repo not found)"
+    evidence: [https://huggingface.co/datasets/FinanceMTEB/FinChinaSentiment]
+    reason: "No licence."
+  fineval_sentiment:
+    hf_id: FinanceMTEB/FinEvaSentiment
+    lang: zh
+    role: not_converted
+    class: EXCLUDE
+    license: "conflicting (HF cc-by-nc-sa-4.0 vs GitHub Apache-2.0)"
+    quote: "HF card: license cc-by-nc-sa-4.0"
+    evidence: [https://github.com/SUFE-AIFLM-Lab/FinEval]
+    reason: "Conflicting terms; treated as NC."
+  cfbenchmark:
+    hf_id: TongjiFinLab/CFBenchmark
+    lang: zh
+    role: not_converted
+    class: EXCLUDE
+    license: "non-commercial research preview"
+    quote: "CFBenchmark is a research preview intended for non-commercial use only, subject to the Terms of Use of the data generated by OpenAI."
+    evidence: [https://github.com/TongjiFinLab/CFBenchmark]
+    reason: "Non-commercial and OpenAI-generated."
+  financeiq:
+    hf_id: Duxiaoman-DI/FinanceIQ
+    lang: zh
+    role: not_converted
+    class: EXCLUDE
+    license: CC-BY-NC-SA-4.0
+    quote: "license: cc-by-nc-sa-4.0"
+    evidence: [https://huggingface.co/datasets/Duxiaoman-DI/FinanceIQ]
+    reason: "Non-commercial."
+  dureader_yesno:
+    hf_id: dirtycomputer/dureader_yesno-data
+    lang: zh
+    role: not_converted
+    class: EXCLUDE
+    license: unclear
+    quote: "Copyright 2017 Baidu.com, Inc. ... Licensed under the Apache License, Version 2.0 (code repo README; data terms not stated separately)"
+    evidence: [https://github.com/baidu/DuReader]
+    reason: "Apache notice is on the code repo; no explicit data grant; HF mirror has no card. High value if Baidu confirms."
+  logiqa2:
+    hf_id: datatune/LogiQA2.0
+    lang: zh
+    role: not_converted
+    class: EXCLUDE
+    license: CC-BY-NC-SA-4.0
+    quote: "This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License."
+    evidence: [https://github.com/csitfun/LogiQA2.0]
+    reason: "Non-commercial; datatune mirror tagged mit contradicts upstream."
+  chinesenlpcorpus_sentiment:
+    hf_id: dirtycomputer/weibo_senti_100k
+    lang: zh
+    role: not_converted
+    class: EXCLUDE
+    license: unknown
+    quote: "(no LICENSE in SophonPlus/ChineseNlpCorpus; scraped Weibo / Meituan / e-commerce)"
+    evidence: [https://github.com/SophonPlus/ChineseNlpCorpus]
+    reason: "No licence. Covers weibo_senti_100k, waimai_10k, online_shopping_10_cats, ChnSentiCorp_htl_all."
+  cmteb_reviews:
+    hf_id: C-MTEB/JDReview-classification
+    lang: zh
+    role: not_converted
+    class: EXCLUDE
+    license: unknown
+    quote: "(no card licence)"
+    evidence: [https://huggingface.co/datasets/C-MTEB/JDReview-classification]
+    reason: "No licence (also OnlineShopping / Waimai C-MTEB sets)."
+  shibing624_nli_zh:
+    hf_id: shibing624/nli_zh
+    lang: zh
+    role: not_converted
+    class: EXCLUDE
+    license: "tag cc-by-4.0 contradicted by card"
+    quote: "数据集的版权归原作者所有，使用各数据集时请尊重原数据集的版权。 / 用于学术研究。"
+    evidence: [https://huggingface.co/datasets/shibing624/nli_zh]
+    reason: "Bundle of ATEC/BQ/LCQMC/PAWSX/STS-B; constituents research-only."
+  shibing624_snli_zh:
+    hf_id: shibing624/snli-zh
+    lang: zh
+    role: not_converted
+    class: EXCLUDE
+    license: "tag apache-2.0 contradicted by card"
+    quote: "用于学术研究。"
+    evidence: [https://huggingface.co/datasets/shibing624/snli-zh]
+    reason: "Conflicting statements."
+  anli:
+    hf_id: facebook/anli
+    lang: en
+    role: not_converted
+    class: EXCLUDE
+    license: CC-BY-NC-4.0
+    quote: "license: cc-by-nc-4.0"
+    evidence: [https://huggingface.co/datasets/facebook/anli]
+    reason: "Non-commercial."
+  financial_phrasebank:
+    hf_id: takala/financial_phrasebank
+    lang: en
+    role: not_converted
+    class: EXCLUDE
+    license: CC-BY-NC-SA-3.0
+    quote: "This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License."
+    evidence: [https://huggingface.co/datasets/takala/financial_phrasebank]
+    reason: "Non-commercial."
+  dair_emotion:
+    hf_id: dair-ai/emotion
+    lang: en
+    role: not_converted
+    class: EXCLUDE
+    license: "educational and research only"
+    quote: "The dataset should be used for educational and research purposes only."
+    evidence: [https://huggingface.co/datasets/dair-ai/emotion]
+    reason: "Research-only."
+  amazon_counterfactual:
+    hf_id: mteb/amazon_counterfactual
+    lang: en
+    role: not_converted
+    class: EXCLUDE
+    license: CC-BY-NC-4.0
+    quote: "Attribution-NonCommercial 4.0 International (amazon-research/amazon-multilingual-counterfactual-dataset LICENSE)"
+    evidence: [https://github.com/amazon-research/amazon-multilingual-counterfactual-dataset/blob/main/LICENSE]
+    reason: "Non-commercial upstream; the mteb mirror is tagged cc-by-4.0 (the phase-0 census had this as OK; corrected here)."
+
+  # ------------------------------------------------------------------ not converted, licence OK (candidates)
+  clinc150:
+    hf_id: clinc/clinc_oos
+    lang: en
+    role: not_converted
+    class: ALLOW
+    share_alike: false
+    license: CC-BY-3.0
+    quote: "Creative Commons Legal Code - Attribution 3.0 Unported (clinc/oos-eval LICENSE)"
+    evidence: [https://github.com/clinc/oos-eval/blob/master/LICENSE]
+    duties: [credit Larson et al. 2019, CC BY 3.0 link]
+  snli:
+    hf_id: stanfordnlp/snli
+    lang: en
+    role: not_converted
+    class: CONDITIONAL
+    share_alike: true
+    license: CC-BY-SA-4.0
+    quote: "licensed under a Creative Commons Attribution-ShareAlike 4.0 International License. The corpus includes content from the Flickr 30k corpus, also released under an Attribution-ShareAlike licence."
+    evidence: [https://huggingface.co/datasets/stanfordnlp/snli]
+    duties: [credit Bowman et al. 2015, share-alike question for weights]
+  kdconv:
+    hf_id: thu-coai/kdconv
+    lang: zh
+    role: not_converted
+    class: ALLOW
+    share_alike: false
+    license: Apache-2.0
+    quote: "Apache License Version 2.0 (thu-coai/KdConv LICENSE)"
+    evidence: [https://github.com/thu-coai/KdConv]
+    duties: [Apache-2.0 attribution and licence notice]
+  mmmlu_zh:
+    hf_id: openai/MMMLU
+    hf_config: ZH_CN
+    lang: zh
+    role: not_converted
+    class: ALLOW
+    share_alike: false
+    license: MIT
+    quote: "license: mit"
+    evidence: [https://huggingface.co/datasets/openai/MMMLU]
+    duties: [MIT notice; eval use only recommended (benchmark)]
+  xstorycloze_zh:
+    hf_id: juletxara/xstory_cloze
+    hf_config: zh
+    lang: zh
+    role: not_converted
+    class: CONDITIONAL
+    share_alike: true
+    license: CC-BY-SA-4.0
+    quote: "XStoryCloze is opensourced under CC BY-SA 4.0, the same license as the original English StoryCloze."
+    evidence: [https://huggingface.co/datasets/juletxara/xstory_cloze]
+    duties: [credit Lin et al. 2022 (XGLM) and Mostafazadeh et al. 2016, share-alike; eval candidate only]
